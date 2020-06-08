@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.loginstatus.LoginStatusMapper">
+
+
+    <select id="getChartData" resultType="java.util.HashMap">
+        SELECT CAST(count(1) AS char ) count,dat
+        FROM (SELECT username,date_format(login_time, '%Y-%m-%d') dat FROM loginstatus WHERE
+        login_time BETWEEN #{startTime} AND #{endTime}
+        <if test="status == 0">
+           AND loginstatus=0
+        </if>
+        <if test="status == 1">
+            AND loginstatus=1 AND loginstatus=2
+        </if>
+        GROUP BY date_format(login_time, '%Y-%m-%d'),username) A
+        GROUP BY dat
+    </select>
+
+</mapper>

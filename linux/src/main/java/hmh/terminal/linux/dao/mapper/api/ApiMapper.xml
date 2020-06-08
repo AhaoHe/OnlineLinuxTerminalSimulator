@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.api.ApiMapper">
+
+    <select id="getAllApiList" resultType="ApiVo">
+        SELECT
+        b.api_id,
+        a.api_name parentName,
+        b.pid,
+        b.api_name,
+        b.api_sort,
+        b.api_url,
+        b.api_method,
+        b.description
+        FROM
+        api a
+        RIGHT JOIN
+        api b ON b.pid = a.api_id
+        ORDER BY b.api_sort DESC
+    </select>
+
+    <select id="getApiLabelList" resultType="ApiVo">
+        SELECT
+        b.api_id as id,b.api_name as label,
+        concat((CASE WHEN a.api_url IS NULL THEN ''
+        ELSE a.api_url END),
+        b.api_url) as url,
+        b.pid,
+        b.api_sort as sort
+        FROM api b
+        LEFT JOIN api a ON a.api_id = b.pid
+        ORDER BY b.api_sort ASC;
+    </select>
+
+    <select id="getApiUrlByUserNameNew" resultType="Api">
+        SELECT DISTINCT
+        concat((CASE WHEN a.api_url IS NULL THEN ''
+        ELSE a.api_url END),
+        b.api_url) as api_url,
+        b.api_method
+        FROM api a
+        RIGHT JOIN
+        (
+        SELECT DISTINCT a.*
+                FROM api a,
+                 role b,
+                 role_api c,
+                 user d,
+                 user_role e
+                WHERE a.api_id = c.api_id
+                AND b.role_id = c.role_id
+                        AND a.api_method!=''
+                AND d.uid = e.uid
+                AND e.role_id = c.role_id
+                        AND d.username = #{username}
+                ORDER BY a.api_sort asc
+        )b
+        on b.pid=a.api_id;
+    </select>
+
+    <select id="getApiData" resultType="ApiDataVo">
+        SELECT
+        b.api_id as id ,b.api_name,
+        (CASE WHEN a.api_url IS NULL THEN ''
+        ELSE a.api_url END) as parentPath,
+        b.api_url,
+        b.pid,
+        b.api_method,b.api_sort,b.description,b.enable
+        FROM api a
+        RIGHT JOIN
+        api b
+        on b.pid=a.api_id
+        WHERE b.api_id = #{id}
+    </select>
+
+</mapper>

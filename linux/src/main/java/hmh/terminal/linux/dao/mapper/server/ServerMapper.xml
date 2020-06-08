@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.server.ServerMapper">
+
+    <select id="getServerByServerId" resultType="java.util.Map">
+        select hostname,port,
+        (case status
+        when 0 then rootPassword
+        when 1 then sqlkey
+        else filekey
+        end) as loginKey,
+        CAST(status AS char) AS status
+        from server
+        where id =#{sid}
+    </select>
+    <select id="getServerByServerIdAndStatus" resultType="java.util.Map">
+        select hostname,port,
+        (case #{status}
+        when 0 then rootPassword
+        when 1 then sqlkey
+        else filekey
+        end) as loginKey,
+        CAST(status AS char) AS status
+        from server
+        where id =#{id}
+    </select>
+    <select id="getServerRegister" resultType="java.util.Map">
+        select id,hostname,port,
+        (case status
+        when 0 then rootPassword
+        when 1 then sqlkey
+        else filekey
+        end) as loginKey,
+        CAST(status AS char) AS status,
+        disk
+        from server
+        where register_enable = 3
+    </select>
+
+    <select id="severList" resultType="java.lang.String">
+        select id
+        from server
+        where register_enable != 0
+    </select>
+
+</mapper>
