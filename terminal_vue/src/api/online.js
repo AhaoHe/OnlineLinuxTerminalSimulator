@@ -9,12 +9,6 @@ export function onlineCount() {
     })
 }
 
-export function online() {
-    return request({
-      url: '/home/online',
-      method: 'get'
-    })
-}
 export function offline(username) {
     return request({
       url: '/home/online',
@@ -28,6 +22,15 @@ export function offline(username) {
 export function banUser(username) {
     return request({
       url: '/home/online',
+      method: 'put',
+      params:{
+        username
+      }
+    })
+}
+export function UnbanUser(username) {
+    return request({
+      url: '/home/ban',
       method: 'put',
       params:{
         username
@@ -71,6 +74,25 @@ export function updateDisk(uid,username,disk) {
       method: 'put',
       params:{
         uid,username,disk
+      }
+    })
+}
+
+export function getUserList(query) {   
+    return request({
+      url: '/home/online',
+      method: 'get',
+      params:{
+        query:JSON.stringify(query)
+      }
+    })
+}
+export function getBanUserList(query) {
+    return request({
+      url: '/home/ban',
+      method: 'get',
+      params:{
+        query:JSON.stringify(query)
       }
     })
 }

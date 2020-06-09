@@ -43,19 +43,47 @@ public class HomeController {
     UserServerService userServerService;
 
 
+    //获取开始时间
+    private   String getStartTime(String time,Integer days){
+        try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date dd = df.parse(time);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dd);
+            calendar.add(Calendar.DAY_OF_MONTH, -(days-1));//加一天
+            System.out.println("开始的时间" + df.format(calendar.getTime()));
+            return df.format(calendar.getTime());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     //获取time往前days天的数据
     @GetMapping("echarts")
     public JsonResult echarts(@RequestParam("time")String time,
                               @RequestParam("days")Integer days){
         try{
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            Date dd = df.parse(time);
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(dd);
-            calendar.add(Calendar.DAY_OF_MONTH, -days);//加一天
-            System.out.println("开始的时间" + df.format(calendar.getTime()));
-            String startTime = df.format(calendar.getTime());
-            return  ResultFactory.SuccessResult(loginStatusService.getChartData(startTime,days));
+            return  ResultFactory.SuccessResult(loginStatusService.getChartData(getStartTime(time,days),days));
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+
+    //获取time往前days天的数据
+    @GetMapping("usercharts")
+    public JsonResult userEcharts(@RequestParam("time")String time,@RequestParam("days")Integer days,@RequestParam("username")String username){
+        try{
+            return  ResultFactory.SuccessResult(loginStatusService.getUserChartData(getStartTime(time,days),days,username));
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+
+    @GetMapping("usercommand")
+    public JsonResult historyCommand(String query){
+        try{
+            return  ResultFactory.SuccessResult(loginStatusService.getHistoryCommand(query));
         }catch (Exception e){
             return  ResultFactory.FailResult(e.getMessage());
         }
@@ -71,12 +99,26 @@ public class HomeController {
     }
 
     @GetMapping("online")
-    public JsonResult online(){
+    public JsonResult onlineList(@RequestParam("query")String query){
         try{
-            ConcurrentHashMap<String,WebSocketServer> temp;
-            temp = WebSocketServer.webSocketMap;
-            List<String> list = new LinkedList<>(temp.keySet());
-            return  ResultFactory.SuccessResult(list);
+            return  ResultFactory.SuccessResult(loginStatusService.getListNoBan(query));
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+    @GetMapping("ban")
+    public JsonResult banUsers(@RequestParam("query")String query){
+        try{
+            return  ResultFactory.SuccessResult(loginStatusService.getListWithBan(query));
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+
+    @PutMapping("ban")
+    public JsonResult unBan(@RequestParam("username")String username){
+        try{
+            return  ResultFactory.SuccessResult(userServerService.UnBanUser(username));
         }catch (Exception e){
             return  ResultFactory.FailResult(e.getMessage());
         }
@@ -89,8 +131,10 @@ public class HomeController {
                 @Override
                 public void run() {
                     try {
-                        WebSocketServer.webSocketMap.get(username).sendMessage("管理员已将您的服务器下线！");
-                        WebSocketServer.webSocketMap.get(username).onClose();
+                        WebSocketServer webSocketServer = WebSocketServer.webSocketMap.get(username);
+                        webSocketServer.sendMessage("管理员已将您的服务器下线！");
+                        webSocketServer.setSessionNull();
+                        webSocketServer.onClose();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -110,8 +154,10 @@ public class HomeController {
                 @Override
                 public void run() {
                     try {
-                        WebSocketServer.webSocketMap.get(username).sendMessage("管理员已将封禁！");
-                        WebSocketServer.webSocketMap.get(username).onClose();
+                        WebSocketServer webSocketServer = WebSocketServer.webSocketMap.get(username);
+                        webSocketServer.sendMessage("管理员已将封禁！");
+                        webSocketServer.setSessionNull();
+                        webSocketServer.onClose();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

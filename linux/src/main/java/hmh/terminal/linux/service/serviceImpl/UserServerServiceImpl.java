@@ -32,6 +32,11 @@ public class UserServerServiceImpl  extends ServiceImpl<UserServerMapper, UserSe
     }
 
     @Override
+    public int UnBanUser(String username) {
+        return this.baseMapper.UnBanUser(username);
+    }
+
+    @Override
     public IPage<List<DiskDTO>> disk(Integer current, Integer size, String search,Integer level,Integer groupId) {
         IPage<DiskDTO> page = new Page<>(current,size);
         return this.baseMapper.disk(page,search,level,groupId);

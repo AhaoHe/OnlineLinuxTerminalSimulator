@@ -5,6 +5,7 @@ const getters = {
     gname: state => state.user.gname,
     level: state => state.user.level,
     groupId: state => state.user.groupId,
+    serverId: state => state.user.serverId,
     menu_list: state => state.user.menu_list,
 
     sidebar: state => state.app.sidebar,

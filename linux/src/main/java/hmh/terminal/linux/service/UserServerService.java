@@ -17,6 +17,7 @@ import java.util.Map;
 public interface UserServerService extends IService<UserServer> {
 
     int BanUser(String username);
+    int UnBanUser(String username);
 
     IPage<List<DiskDTO>> disk(Integer current, Integer size, String search,Integer level,Integer groupId);
 

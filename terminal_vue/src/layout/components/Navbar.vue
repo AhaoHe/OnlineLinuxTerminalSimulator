@@ -7,7 +7,7 @@
             <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
             <div class="avatar-wrapper">
             <!-- <img :src="avatar+'?imageView2/1/w/80/h/80'" class="user-avatar"> -->
-                <span style="font-size:15px;margin-right:10px" v-text="`${username}[${gname}]`"></span>
+                <span style="font-size:15px;margin-right:10px" v-text="`${username}[${gname},${serverId}号服务器]`"></span>
                 <el-badge is-dot>
                     <el-avatar icon="el-icon-user-solid"></el-avatar>
                 </el-badge>
@@ -47,6 +47,7 @@ export default {
             role: this.$store.getters.roles,
             username: this.$store.getters.username,
             gname: this.$store.getters.gname,
+            serverId: this.$store.getters.serverId,
         }
     },
     computed: {

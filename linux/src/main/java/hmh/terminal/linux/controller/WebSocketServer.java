@@ -228,4 +228,8 @@ public class WebSocketServer {
     private static synchronized void subOnlineCount() {
         WebSocketServer.onlineCount--;
     }
+
+    public void setSessionNull(){
+        this.session=null;
+    }
 }

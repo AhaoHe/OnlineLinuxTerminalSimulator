@@ -10,7 +10,7 @@
     @left-check-change="getKey"
     :data="data">
      <span slot-scope="{ option }">{{ option.username }}-{{ option.role_name }}-{{ option.gname }}</span>
-     <el-button class="transfer-footer" :loading="loading" type="danger" slot="left-footer" size="small" @click="rejectApply">拒绝申请</el-button>
+     <el-button class="transfer-footer" :disabled="checkedKey.length==0" :loading="loading" type="danger" slot="left-footer" size="small" @click="rejectApply">拒绝申请</el-button>
   </el-transfer>
 </template>
 
@@ -26,7 +26,7 @@ export default {
     },
     mounted(){
         //this.getUnCheckedData(this.query)
-        this.title = store.getters==10?['其他组成员', '组成员']:['申请人员','组成员']
+        this.title = store.getters.level==10?['其他组成员', '组成员']:['申请人员','组成员']
         this.getData(this.query)
     },
     data() {
@@ -67,7 +67,7 @@ export default {
                     this.data=this.data.concat(r.object)
                     r.object.forEach(element => {
                         if(this.query.level!=10)
-                            element.disabled=element.level>=8
+                            element.disabled=(element.level>=this.$store.getters.level);
                         this.value.push(element.uid)
                     });
                 }).catch
@@ -83,41 +83,52 @@ export default {
             //console.log(value, direction, movedKeys);
              //可以通过direction回调right/left 来进行操作，right：把数字移到右边，left把数据移到左边
              if(direction === "right") {//添加组
-                let val = this.data.filter(e=>{return movedKeys.indexOf(e.uid)!=-1})
-                AddTo(val,this.setForm.groupId).then(r=>{
-                    if(r.object){
-                        this.data.forEach(e=>{
-                            if(movedKeys.indexOf(e.uid)!=-1)
-                                e.gname=this.query.name;
-                        })
-                        this.$message.success("添加成功!")
-                    }
-                    else{
+                this.$confirm(`是否移入该组?`, '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    let val = this.data.filter(e=>{return movedKeys.indexOf(e.uid)!=-1})
+                    AddTo(val,this.setForm.groupId).then(r=>{
+                        if(r.object){
+                            this.data.forEach(e=>{
+                                if(movedKeys.indexOf(e.uid)!=-1)
+                                    e.gname=this.query.name;
+                            })
+                            this.$message.success("添加成功!")
+                        }
+                        else{
+                            this.value=this.value.filter(e=>{return movedKeys.indexOf(e)==-1})
+                            this.$message.success("添加失败!")
+                        }
+                    }).catch(()=>{
                         this.value=this.value.filter(e=>{return movedKeys.indexOf(e)==-1})
-                        this.$message.success("添加失败!")
-                    }
-                }).catch(()=>{
-                    this.value=this.value.filter(e=>{return movedKeys.indexOf(e)==-1})
-                })
-                
+                    })
+                }).catch()
              }
              if(direction === "left") {//移出组
-                let val = this.data.filter(e=>{return movedKeys.indexOf(e.uid)!=-1})
-                RemoveFrom(val,this.query.groupId).then(r=>{
-                    if(r.object){
-                        this.data.forEach(e=>{
-                            if(movedKeys.indexOf(e.uid)!=-1)
-                                e.gname='无组';
-                        })
-                        this.$message.success("添加成功!")
-                    }
-                    else{
+                this.$confirm(`是否移出该组?`, '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(()=>{
+                    let val = this.data.filter(e=>{return movedKeys.indexOf(e.uid)!=-1})
+                    RemoveFrom(val,this.query.groupId).then(r=>{
+                        if(r.object){
+                            this.data.forEach(e=>{
+                                if(movedKeys.indexOf(e.uid)!=-1)
+                                    e.gname='无组';
+                            })
+                            this.$message.success("添加成功!")
+                        }
+                        else{
+                            this.value=this.value.concat(movedKeys)
+                            this.$message.error("添加失败!可能原因：无组无法移除")
+                        }
+                    }).catch(()=>{
                         this.value=this.value.concat(movedKeys)
-                        this.$message.error("添加失败!可能原因：无组无法移除")
-                    }
-                }).catch(()=>{
-                    this.value=this.value.concat(movedKeys)
-                })
+                    })
+                }).catch()
              }   
         },
         getKey(key){
@@ -129,12 +140,18 @@ export default {
             })
         },
         rejectApply(){
-            console.log(this.checkedKey)
-            this.loading=true
-            delApply(this.query.groupId,this.checkedKey.join(',')).then(r=>{
-                this.getData(this.query)
-                this.loading=false
-                this.$message.success('已撤销申请')
+            this.$confirm(`是否拒绝申请?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(()=>{
+                console.log(this.checkedKey)
+                this.loading=true
+                delApply(this.query.groupId,this.checkedKey.join(',')).then(r=>{
+                    this.getData(this.query)
+                    this.loading=false
+                    this.$message.success('已撤销申请')
+                }).catch()
             }).catch()
         }
     },

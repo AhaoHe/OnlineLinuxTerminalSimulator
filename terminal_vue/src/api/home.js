@@ -12,4 +12,26 @@ export function getChartData(days) {
     })
 }
 
+export function getUserChart(days,username) {
+    return request({
+      url: '/home/usercharts',
+      method: 'get',
+      params:{
+          time:dateFormat('YYYY-mm-dd',new Date()),
+          days:days,
+          username:username
+      }
+    })
+}
+
+export function getHistoryCommand(query) {
+    return request({
+      url: '/home/usercommand',
+      method: 'get',
+      params:{
+          query:JSON.stringify(query)
+      }
+    })
+}
+
 

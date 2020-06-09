@@ -41,6 +41,11 @@
         update user_server SET status = 0
         WHERE uid = (SELECT uid FROM user where username=#{username})
     </update>
+    <update id="UnBanUser">
+        update user_server SET status = 1
+        WHERE uid = (SELECT uid FROM user where username=#{username})
+    </update>
+
 
     <select id="getGroupServerUserName" resultType="java.lang.String">
         select server_username

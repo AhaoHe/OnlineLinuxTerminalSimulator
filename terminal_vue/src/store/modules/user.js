@@ -15,7 +15,8 @@ export default {
         groupId: getGroupId(),
         gname:getGName(),
         level:getLevel(),
-        menu_list: []
+        menu_list: [],
+        serverId:''
     },
     mutations:{
         setLoginMsg(state,payload){
@@ -45,6 +46,9 @@ export default {
         SET_GNAME: (state, gname) => {
             state.gname = gname
         },
+        SET_SERVERID: (state, serverId) => {
+            state.serverId = serverId
+        }
     },
     actions:{
         // user login
@@ -81,7 +85,7 @@ export default {
                         reject('未获得数据，请重新登录')
                     }
 
-                    const { roles, menus,groupId,gname,level } = data.object
+                    const { roles, menus,groupId,gname,level,serverId } = data.object
 
                     // roles must be a non-empty array
                     if (!roles) {
@@ -99,6 +103,7 @@ export default {
                     commit('SET_LEVEL', level)
                     commit('SET_GOUPID', groupId)
                     commit('SET_GNAME', gname)
+                    commit('SET_SERVERID',serverId)
                     setRole(roles);
                     setLevel(level);
                     setGroupId(groupId);

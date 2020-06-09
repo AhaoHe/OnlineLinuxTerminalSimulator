@@ -3,15 +3,17 @@
         <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
         <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-        <line-chart :chart-data="lineChartData" />
+        <!-- <line-chart :chart-data="lineChartData" /> -->
+        <e-charts :chart-data="lineChartData" />
         </el-row>
     </div>
 </template>
 <script>
 import PanelGroup from './components/PanelGroup'
-import LineChart from './components/LineCharts'
+//import LineChart from './components/LineCharts'
+import ECharts from '@/components/ECharts'
 import { getChartData } from '@/api/home'
-const lineChartData = {
+/* const lineChartData = {
   newVisitis: {
     expectedData: [100, 120, 161, 134, 105, 160, 165],
     actualData: [120, 82, 91, 154, 162, 140, 145]
@@ -28,20 +30,21 @@ const lineChartData = {
     expectedData: [130, 140, 141, 142, 145, 150, 160],
     actualData: [120, 82, 91, 154, 162, 140, 130]
   }
-}
+} */
 
 export default {
   name: 'DashboardAdmin',
   components: {
     PanelGroup,
-    LineChart,
+    //LineChart,
+    ECharts
   },
   mounted(){
       this.getData()
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: {},
     }
   },
   methods: {
@@ -50,7 +53,7 @@ export default {
     },
     getData(){
         getChartData(7).then(r=>{
-            this.lineChartData={expectedData:r.object.linuxdata,actualData:r.object.logindata}
+            this.lineChartData=r.object
         }).catch()
     }
   }

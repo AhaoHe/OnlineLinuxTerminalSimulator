@@ -190,6 +190,7 @@ public class UserContoller extends JSONAuthentication {
             data.put("level", roles.get("level"));
             data.put("groupId", roles.get("group_id"));
             data.put("gname", roles.get("gname"));
+            data.put("serverId", roles.get("serverId"));
             log.info(username+"["+roles+"]"+"获取菜单："+menus);
             return  ResultFactory.SuccessResult(data);
         }catch (Exception e){

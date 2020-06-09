@@ -28,6 +28,7 @@ public interface UserServerMapper extends BaseMapper<UserServer> {
     Map<String,Object> getUserServerAll(@Param("username") String username, @Param("sid") Integer sid);
 
     int BanUser(@Param("username")String username);
+    int UnBanUser(@Param("username")String username);
 
     List<String> getGroupServerUserName(@Param("groupId")Integer groupId);
     List<String> getGroupServerAdminUserName(@Param("groupId")Integer groupId);
