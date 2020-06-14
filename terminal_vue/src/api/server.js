@@ -39,3 +39,33 @@ export function setRegister(id) {
     })
 }
 
+
+export function getUsersInfo(query) {
+    return request({
+      url: '/server/severusers',
+      method: 'get',
+      params: { query: JSON.stringify(query) }
+    })
+}
+
+export function getSelection(serverId) {
+    return request({
+      url: '/server/selection',
+      method: 'get',
+      params: { serverId }
+    })
+}
+
+
+export function toNewServer(users,serverIdOld,serverIdNew) {
+    let formData = new FormData();
+    formData.append("users",JSON.stringify(users))
+    formData.append("serverIdOld",serverIdOld)
+    formData.append("serverIdNew",parseInt(serverIdNew))
+    return request({
+      url: '/server/toNewServer',
+      method: 'post',
+      data : formData
+    })
+}
+

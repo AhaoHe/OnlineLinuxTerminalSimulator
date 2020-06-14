@@ -105,7 +105,7 @@ export default {
           this.$store.dispatch('user/login', this.form)
             .then(()=>{
               this.$router.replace({
-                name: 'TEST'
+                name: '首页'
               })
               this.loading = false
             })

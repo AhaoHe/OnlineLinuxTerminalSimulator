@@ -9,8 +9,8 @@
     v-model="value"
     @left-check-change="getKey"
     :data="data">
-     <span slot-scope="{ option }">{{ option.username }}-{{ option.role_name }}-{{ option.gname }}</span>
-     <el-button class="transfer-footer" :disabled="checkedKey.length==0" :loading="loading" type="danger" slot="left-footer" size="small" @click="rejectApply">拒绝申请</el-button>
+     <span slot-scope="{ option }" :style="`color:${option.server_status==1?'green':'red'}`">{{ option.username }}-{{ option.role_name }}-{{ option.gname }}</span>
+     <el-button class="transfer-footer" v-if="query.level!=10" :disabled="checkedKey.length==0" :loading="loading" type="danger" slot="left-footer" size="small" @click="rejectApply">拒绝申请</el-button>
   </el-transfer>
 </template>
 

@@ -33,7 +33,7 @@ public class CommandServiceImpl extends ServiceImpl<CommandMapper,Command> imple
         QueryWrapper<Command> queryWrapper = new QueryWrapper<>();
         queryWrapper
                 .select("command","description")
-                .eq("status",3)
+                .ne("status",7)
                 .likeRight("command",command);
         return this.baseMapper.selectList(queryWrapper);
     }

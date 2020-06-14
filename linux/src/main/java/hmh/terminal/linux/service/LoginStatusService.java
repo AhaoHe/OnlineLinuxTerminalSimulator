@@ -25,6 +25,9 @@ public interface LoginStatusService extends IService<LoginStatus> {
 
     Map<String,List> getChartData(String startTime, int days);
     Map<String,List> getUserChartData(String startTime, int days,String username);
+    Map<String,List> getCommandChartData(String startTime, int days);
+
+    Map<String,Integer> getCount();
 
     List<String> getDFH(String username);
 

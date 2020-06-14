@@ -16,6 +16,23 @@
         from server
         where id =#{sid}
     </select>
+
+    <select id="getNewServerByServerId" resultType="java.util.Map">
+        select '转移用户' as username , hostname,port,'' as server_username,B.group_name,B.gid,
+        (case status
+        when 0 then rootPassword
+        when 1 then sqlkey
+        else filekey
+        end) as loginKey,
+        CAST(status AS char) AS status
+        from server A
+        left join
+        (select serverId,group_name,id as gid
+        from sys_group where status = 0 and serverId = #{sid})B
+        on A.id = B.serverId
+        where id =#{sid}
+    </select>
+
     <select id="getServerByServerIdAndStatus" resultType="java.util.Map">
         select hostname,port,
         (case #{status}
@@ -44,6 +61,29 @@
         select id
         from server
         where register_enable != 0
+    </select>
+
+
+
+    <select id="thisServerUsers" resultType="java.util.Map">
+        select username,role_name,gname,group_name,server_username,uid,server_status,
+        (case when level>=8 and gstatus!=0 then true
+        else false end ) as disabled
+        from userall
+        where serverId = #{serverId}
+        <if test="search!='' and search!=null">
+            and  username LIKE concat(#{search},'%')
+        </if>
+    </select>
+    <select id="otherServerUsers" resultType="java.util.Map">
+        select username,serverId
+        from userall
+        where serverId != #{serverId};
+    </select>
+    <select id="selectionSever" resultType="java.lang.String">
+        select id
+        from server
+        where id != #{serverId} and register_enable!=0;
     </select>
 
 </mapper>

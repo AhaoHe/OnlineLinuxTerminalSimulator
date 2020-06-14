@@ -1,6 +1,7 @@
 package hmh.terminal.linux.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import hmh.terminal.linux.dao.entity.LoginStatus;
 import hmh.terminal.linux.dao.entity.UserServer;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,9 @@ public interface SSHService extends IService<UserServer> {
     //如果是管理员 根据sid和uid获得ip和端口。超级管理员，一人多root号
     Map<String,Object> getUserAndServer(String username, Integer sid);
 
-    boolean checkCommand(String command);
+    boolean checkCommand(String command,String username);
+
+    boolean saveLoginStatus(LoginStatus login);
 
     boolean checkToken(String username, String ipAddress,String token);
 }

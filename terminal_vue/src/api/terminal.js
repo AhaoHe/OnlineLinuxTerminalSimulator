@@ -8,3 +8,10 @@ export function getCommandDesc(command) {
       params: { command }
     })
 }
+export function getGroupUsers(query) {
+    return request({
+      url: '/user/groupusers',
+      method: 'get',
+      params: { query:JSON.stringify(query) }
+    })
+}

@@ -26,4 +26,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Select("SELECT ipaddress,token FROM loginstatus WHERE login_time = (SELECT Max(login_time) AS login_time FROM loginstatus WHERE loginstatus=0 AND username=#{username}) AND username = #{username};")
     Map<String,String> checkToken(@Param("username") String username);
+
+//获取组内的所有成员（无组不显示）
+    IPage<List<Map<String, Object>>> getUserServerByUsername(IPage<Map<String,Object>>page,@Param("groupId") Integer groupId,@Param("level")Integer level,@Param("search")String search);
 }

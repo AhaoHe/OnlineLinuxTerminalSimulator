@@ -105,12 +105,12 @@ export default {
           })
         },
         append(data) {
-          this.$confirm(`是否添加子菜单?`, '提示', {
+          this.$confirm(`是否添加子API?`, '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(()=>{
-            const newChild = { id: this.index++, label: '新增子菜单', newData:true,children: [] };
+            const newChild = { id: this.index++, label: '新增子API', newData:true,children: [] };
             if (!data.children) {
               this.$set(data, 'children', []);
             }
@@ -119,20 +119,20 @@ export default {
           }).catch(()=>{})
         },
         addRoot(){
-          this.$confirm(`是否添加根菜单?`, '提示', {
+          this.$confirm(`是否添加根API?`, '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(()=>{
-            const newRoot = { id: this.index++, label: '新增根菜单',newData:true, children: [{
-              id: this.index++, label: '新增子菜单', newData:true,children: []
+            const newRoot = { id: this.index++, label: '新增根API',newData:true, children: [{
+              id: this.index++, label: '新增子API', newData:true,children: []
             }] };
             this.data.push(newRoot)
             this.enable=false;
           }).catch(()=>{})
         },
         remove(node, data) {
-          this.$confirm(`是否删除该菜单?`, '提示', {
+          this.$confirm(`是否删除该API?`, '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'

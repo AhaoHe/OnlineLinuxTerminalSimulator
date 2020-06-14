@@ -12,6 +12,17 @@ export function getChartData(days) {
     })
 }
 
+export function getCommandChartData(days) {
+    return request({
+      url: '/home/commandcharts',
+      method: 'get',
+      params:{
+          time:dateFormat('YYYY-mm-dd',new Date()),
+          days
+      }
+    })
+}
+
 export function getUserChart(days,username) {
     return request({
       url: '/home/usercharts',
@@ -31,6 +42,13 @@ export function getHistoryCommand(query) {
       params:{
           query:JSON.stringify(query)
       }
+    })
+}
+
+export function getHistoryCount() {
+    return request({
+      url: '/home/count',
+      method: 'get'
     })
 }
 

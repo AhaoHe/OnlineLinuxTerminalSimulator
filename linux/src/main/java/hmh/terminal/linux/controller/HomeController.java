@@ -89,6 +89,24 @@ public class HomeController {
         }
     }
 
+    @GetMapping("commandcharts")
+    public JsonResult HistoryCommandCharts(@RequestParam("time")String time,@RequestParam("days")Integer days){
+        try{
+            return  ResultFactory.SuccessResult(loginStatusService.getCommandChartData(getStartTime(time,days),days));
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+
+    @GetMapping("count")
+    public JsonResult HistoryCount(){
+        try{
+            return  ResultFactory.SuccessResult(loginStatusService.getCount());
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+
     @GetMapping("onlinecount")
     public JsonResult onlineCount(){
         try{

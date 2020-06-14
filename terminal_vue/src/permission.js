@@ -11,11 +11,12 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 //const whiteList = ['/login', '/resgister']
 
 router.beforeEach(async(to, from, next) => {
-    // start progress bar
+    // 开始进度条
     NProgress.start()
-    //标题set page title
+    //设置标题
     document.title = getPageTitle(to.meta.title);
-    // determine whether the user has logged in
+    // 验证是否含token、是否含角色权限信息，
+    // 没有则返回登录页，有但无页面则返回404页面。
     const hasToken = getToken();
     let flag=0;
     if(hasToken){

@@ -12,7 +12,7 @@
 import PanelGroup from './components/PanelGroup'
 //import LineChart from './components/LineCharts'
 import ECharts from '@/components/ECharts'
-import { getChartData } from '@/api/home'
+import { getChartData,getCommandChartData } from '@/api/home'
 /* const lineChartData = {
   newVisitis: {
     expectedData: [100, 120, 161, 134, 105, 160, 165],
@@ -45,16 +45,36 @@ export default {
   data() {
     return {
       lineChartData: {},
+      type:'users',
+      oldType:'users',
     }
   },
   methods: {
     handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type]
+      this.type = type
     },
     getData(){
+      if(this.type=='users'){
         getChartData(7).then(r=>{
+            this.oldType='users'
             this.lineChartData=r.object
         }).catch()
+      }else{
+        this.getCommandData()
+      }
+    },
+    getCommandData(){
+      getCommandChartData(7).then(r=>{
+        this.oldType='command'
+        this.lineChartData=r.object
+      }).catch()
+    }
+  },
+  watch:{
+    'type':function(newVal){
+      if(newVal!=this.oldType){
+        this.getData()
+      }
     }
   }
 }

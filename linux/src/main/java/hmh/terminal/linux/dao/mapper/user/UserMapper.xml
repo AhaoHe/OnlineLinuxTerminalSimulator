@@ -94,4 +94,17 @@
         WHERE state!=7
         and username LIKE concat(#{username},'%')
     </select>
+
+    <select id="getUserServerByUsername" resultType="java.util.Map">
+        select username,role_name,server_username
+        from userall
+        where 1=1
+        <if test="level!=10">
+            and group_id = #{groupId} and gstatus!=0
+        </if>
+        AND level!=10
+        <if test="search!='' and search!=null">
+            and username LIKE concat(#{search},'%')
+        </if>
+    </select>
 </mapper>

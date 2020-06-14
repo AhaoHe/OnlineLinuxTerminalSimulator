@@ -1,5 +1,5 @@
 <template>
-    <div>分配代码（选中：{{ `${GName}-${serverId}` }}号）
+    <div>分配命令行（选中：{{ `${GName}-${serverId}` }}号）
         <div style="margin-bottom:10px;margin-top:10px">
         <el-button size="small" type="primary" @click="submit" style="margin-right:10px" :disabled="groupId==0">提交</el-button>
         <el-input

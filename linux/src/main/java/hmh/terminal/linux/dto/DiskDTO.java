@@ -13,5 +13,6 @@ public class DiskDTO {
     private String username;
     private String disk;
     private Integer serverId;
-    private  String gname;
+    private String gname;
+    private Integer serverStatus;
 }

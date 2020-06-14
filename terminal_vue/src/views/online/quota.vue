@@ -1,7 +1,7 @@
 <template>
     <div>
         <div style="margin-bottom:10px;text-align:center">  
-            <el-button type="text" slot="reference" style="margin-right:10px" @click="getDFH">点击查看总磁盘使用情况</el-button>
+            <el-button v-if="$store.getters.level==10" type="text" slot="reference" style="margin-right:10px" @click="getDFH">点击查看总磁盘使用情况</el-button>
         </div>
         <el-card>
             <el-table
@@ -11,6 +11,15 @@
                 <el-table-column 
                 prop="username"
                 label="用户名">
+                    <template slot="header">
+                        用户名
+                        <el-tooltip class="item" effect="dark" content="红色为系统封禁用户，绿色为正常用户" placement="top">
+                            <i class="el-icon-warning-outline"></i>
+                        </el-tooltip>
+                    </template>
+                    <template slot-scope="scope">
+                        <span :style="`color:${scope.row.serverStatus==1?'green':'red'}`">{{ scope.row.username }}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column 
                 prop="gname"
@@ -120,6 +129,7 @@ export default {
         },
         getData(){
             disk(this.current,this.size,this.search,store.getters.level,store.getters.groupId).then(r=>{
+                console.log(r.object.records)
                 this.current = r.object.current
                 this.size = r.object.size
                 this.total = r.object.total

@@ -7,7 +7,7 @@
 
         <el-main style="width:70%">
         <div style="margin-bottom:20px;margin-top:20px">组管理
-            <el-button type="primary" size="mini" style="margin-right:10px;float:right" @click="add">新增组</el-button>
+            <el-button v-if="showable" type="primary" size="mini" style="margin-right:10px;float:right" @click="add">新增组</el-button>
         </div>
         <el-card>
             <el-table
@@ -42,13 +42,13 @@
                 <el-table-column label="操作" width="240">
                     <template slot-scope="scope">
                         <el-button type="text" size="mini" style="margin-right:10px;" @click="openadmin=true;setForm={groupId:scope.row.id,serverId:scope.row.serverId,name:scope.row.name};">管理成员</el-button>
-                        <el-button type="info" @click="edit(scope.row)" v-if="scope.row.status==0?false:true" size="mini">编辑</el-button>
+                        <el-button type="info" @click="edit(scope.row)" v-if="scope.row.status==0?false:true" size="mini" >编辑</el-button>
                         <el-popconfirm style="margin-left:10px"
                             placement="top"
                             :title="`确定删除${scope.row.name}吗？`"
                             @onConfirm="deleteData(scope.row.id)"
-                        >
-                            <el-button slot="reference" type="danger" size="mini" v-if="scope.row.status==0?false:true">删除</el-button>
+                            v-if="ifshow(scope.row.status)">
+                            <el-button slot="reference" type="danger" size="mini" >删除</el-button>
                         </el-popconfirm>
                     </template>
                 </el-table-column>
@@ -92,6 +92,12 @@
         </el-dialog>
 
       <el-dialog title="设置成员" :visible.sync="openadmin" width="740px">
+        <template slot="title">
+          <span style="margin-right:10px">设置成员</span>
+          <el-tooltip class="item" effect="dark" content="红色为系统封禁用户，绿色为正常用户" placement="top">
+            <i class="el-icon-warning-outline"></i>
+          </el-tooltip>
+        </template>
         <set-user :set-form="setForm"></set-user>
       </el-dialog>
       
@@ -103,6 +109,7 @@
 import { getGroupList,delGroup,SaveOrUpdate,serverList,validateName } from '@/api/group'
 import SetUser from './components/setUser'
 import Command from './components/command'
+import store from '@/store'
 export default {
     mounted(){
         this.getData()
@@ -144,6 +151,7 @@ export default {
               ],
             },
             flag:false,
+            showable:store.getters.level==10,
             server:[],
             setForm:{},
             GId:0,serverId:0,GName:'无'
@@ -229,6 +237,9 @@ export default {
           this.serverId = row.serverId
           this.GName = row.name
       },
+      ifshow(status){
+        return (status==0?false:true)&&(store.getters.level==10)
+      }
     },
     components:{
       SetUser,

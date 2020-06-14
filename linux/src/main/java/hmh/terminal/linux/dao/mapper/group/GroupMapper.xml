@@ -18,7 +18,7 @@
 
     <select id="getUserUnchecked" resultType="java.util.Map">
         SELECT
-        uid,username,role_name,level,server_username,gname,group_name
+        uid,username,role_name,level,server_username,gname,group_name,server_status
         FROM
         userall
         WHERE state=3 and level!=10 AND group_id != #{groupVo.groupId} AND serverId=#{groupVo.serverId}
@@ -32,7 +32,7 @@
 
     <select id="getApplyUnchecked" resultType="java.util.Map">
         SELECT
-        uid,A.username,role_name,level,server_username,gname,group_name
+        uid,A.username,role_name,level,server_username,gname,group_name,server_status
         FROM
         userall A
         RIGHT JOIN (SELECT DISTINCT username FROM apply_group WHERE `status`=3 AND groupID=#{groupId})B ON B.username=A.username
@@ -56,7 +56,7 @@
     <!--</select>-->
     <select id="getUserChecked" resultType="java.util.Map">
         SELECT
-        uid,username,role_name,level,server_username,gname,group_name
+        uid,username,role_name,level,server_username,gname,group_name,server_status
         FROM
         userall
         WHERE state=3 and level!=10 AND group_id = #{groupVo.groupId} AND serverId=#{groupVo.serverId}

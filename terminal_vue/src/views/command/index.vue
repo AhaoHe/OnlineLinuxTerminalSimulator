@@ -2,7 +2,7 @@
     <div>
         <div style="margin-bottom:10px">
         <el-button size="small" v-if="level==10" type="primary" @click="submit" style="margin-right:10px">提交（选中则所有角色不能使用该代码）</el-button>
-        <el-button size="small" v-if="level>8" type="primary" @click="add" style="margin-right:10px">新增代码</el-button>
+        <el-button size="small" v-if="level>8" type="primary" @click="add" style="margin-right:10px">新增命令行</el-button>
         <el-input
             v-model="request.search"
             size="mini"

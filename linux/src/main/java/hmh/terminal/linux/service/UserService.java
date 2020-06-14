@@ -9,6 +9,7 @@ import hmh.terminal.linux.vo.UserVo;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author heminghao
@@ -79,4 +80,6 @@ public interface UserService extends IService<User> {
 
 
     boolean checkToken(String username, String ipAddress,String token)throws UsernameNotFoundException;
+
+    IPage<List<Map<String, Object>>> getUserServerByUserName(String query);
 }

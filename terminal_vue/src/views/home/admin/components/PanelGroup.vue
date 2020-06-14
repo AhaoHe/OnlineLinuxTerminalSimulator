@@ -1,54 +1,54 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-        <div class="card-panel-icon-wrapper icon-people">
+      <div class="card-panel" @click="handleSetLineChartData('users')">
+        <!-- <div class="card-panel-icon-wrapper icon-people">
           <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-        </div>
+        </div> -->
         <div class="card-panel-description">
           <div class="card-panel-text">
             历史Linux活跃人数
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="linuxCount" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
+      <div class="card-panel" @click="handleSetLineChartData('users')">
+        <!-- <div class="card-panel-icon-wrapper icon-message">
           <svg-icon icon-class="message" class-name="card-panel-icon" />
-        </div>
+        </div> -->
         <div class="card-panel-description">
           <div class="card-panel-text">
             历史平台活跃人数
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="systemCount" :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('purchases')">
-        <div class="card-panel-icon-wrapper icon-money">
+      <div class="card-panel" @click="handleSetLineChartData('command')">
+        <!-- <div class="card-panel-icon-wrapper icon-money">
           <svg-icon icon-class="money" class-name="card-panel-icon" />
-        </div>
+        </div> -->
         <div class="card-panel-description">
           <div class="card-panel-text">
             历史累计请求命令行
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="commandCount" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
-        <div class="card-panel-icon-wrapper icon-shopping">
+      <div class="card-panel" @click="handleSetLineChartData('users')">
+        <!-- <div class="card-panel-icon-wrapper icon-shopping">
           <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-        </div>
+        </div> -->
         <div class="card-panel-description">
           <div class="card-panel-text">
             Linux在线人数
           </div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="onlineCount" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -56,12 +56,36 @@
 </template>
 
 <script>
-
+import { getHistoryCount } from '@/api/home'
+import countTo from 'vue-count-to'
 export default {
+  mounted(){
+    this.getCount();
+  },
+  data(){
+    return{
+      systemCount:0,
+      linuxCount:0,
+      commandCount:0,
+      onlineCount:0,
+    }
+  },
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
+    },
+    getCount(){
+      getHistoryCount().then(r=>{
+        console.log(r)
+        this.systemCount=r.object.systemcount
+        this.linuxCount=r.object.linuxcount
+        this.commandCount=r.object.commandcount
+        this.onlineCount=r.object.onlinecount
+      }).catch()
     }
+  },
+  components:{
+    countTo
   }
 }
 </script>

@@ -1,7 +1,12 @@
 package hmh.terminal.linux.service.serviceImpl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import hmh.terminal.linux.dao.entity.Group;
 import hmh.terminal.linux.dao.entity.Server;
@@ -20,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.transform.Result;
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +43,8 @@ public class ServerServiceImpl extends  ServiceImpl<ServerMapper, Server> implem
 
     @Autowired
     GroupMapper groupMapper;
+    @Autowired
+    UserServerMapper userServerMapper;
 
     @Override
     public List<Server> getAllServer() {
@@ -133,6 +141,64 @@ public class ServerServiceImpl extends  ServiceImpl<ServerMapper, Server> implem
                         file.delete();
                 }
             }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public IPage<List<Map<String,Object>>> getSeverUsers(String query) {
+        Map<String,Object> map = JSONObject.toJavaObject(JSON.parseObject(query),Map.class);
+        IPage<Map<String,Object>> page=new Page<>((Integer)map.get("current"),(Integer)map.get("size"));
+        //        List<Map<String, Object>> otherServerUsers = this.baseMapper.otherServerUsers(serverId);
+//        Map<String,List> result = new HashMap<>();
+//        result.put("thisSever",thisServerUsers);
+//        result.put("otherSever",otherServerUsers);
+        return this.baseMapper.thisServerUsers(page,(Integer)map.get("serverId"),(String)map.get("search"));
+    }
+
+    @Override
+    public List<String> getServerSelection(Integer serverId) {
+        return this.baseMapper.selectionSever(serverId);
+    }
+
+    @Override
+    public boolean toNewServer(String users,Integer serverIdOld,Integer serverIdNew) {
+        try {
+            List<Map<String,Object>> usersdata = JSONArray.parseObject(users,List.class);
+            //Map<String,Object> usersdata= JSONObject.toJavaObject(JSONObject.parseArray(users),Map.class);
+            //String[] userdata= users.split(",");
+            Map<String,Object> map=this.baseMapper.getNewServerByServerId(serverIdOld);
+            Map<String,Object> mapNew=this.baseMapper.getNewServerByServerId(serverIdNew);
+            SSHLinux sshLinux = new SSHLinux(map);
+            SSHLinux sshLinuxNew = new SSHLinux(mapNew);
+            if(sshLinuxNew.enable( Integer.parseInt((String) mapNew.get("status")) )&&sshLinux.enable( Integer.parseInt((String) map.get("status")) ) ){
+                for(Map<String,Object> user:usersdata){
+                    //获取转移的服务器的无组
+//                    LambdaQueryWrapper<Group> queryWrapper = new LambdaQueryWrapper<>();
+//                    queryWrapper.eq(Group::getServerId,serverIdNew).eq(Group::getStatus,0);
+//                    List<Group> groups=groupMapper.selectList(queryWrapper);
+                    sshLinuxNew.execute("useradd -g "+mapNew.get("group_name")+" "+user.get("server_username"));
+                    //去除权限
+                    sshLinux.execute("setfacl -b /home/"+user.get("server_username"));
+                    sshLinux.execute("gpasswd -d "+user.get("server_username")+" "+user.get("group_name"));
+                    //去除用户权限，去除用户组，,更新服务器ID
+                    LambdaUpdateWrapper<UserServer> updateWrapper = new LambdaUpdateWrapper<>();
+                    updateWrapper.set(UserServer::getServerId,serverIdNew)
+                            .set(UserServer::getGroupId,mapNew.get("gid"))
+                            .eq(UserServer::getUid,(Integer)user.get("uid"));
+                    userServerMapper.update(null,updateWrapper);
+                    sshLinux.close();
+                    sshLinuxNew.close();
+                }
+            }else {
+                sshLinux.close();
+                sshLinuxNew.close();
+                return false;
+            }
+
+            return true;
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -22,4 +22,7 @@ public interface LoginStatusMapper extends BaseMapper<LoginStatus> {
 
     List<Map<String,String>> getChartData(@Param("startTime")String startTime, @Param("endTime")String endTime,@Param("status")int status);
     List<Map<String,String>> getUserData(@Param("startTime")String startTime, @Param("endTime")String endTime,@Param("username")String username);
+
+    List<Map<String,String>> getChartDataOfCommand(@Param("startTime")String startTime,@Param("endTime")String endTime);
+    Map<String,Integer> getDataCount();
 }

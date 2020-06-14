@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author heminghao
@@ -99,9 +100,9 @@ public class ServerController {
     public JsonResult deleteServer(@RequestParam("id")int id){
         try {
             LambdaQueryWrapper<UserServer> userServerLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            userServerLambdaQueryWrapper.select(UserServer::getUid).eq(UserServer::getServerId,id);
+            userServerLambdaQueryWrapper.eq(UserServer::getServerId,id);
             //判断是否服务器中是否存在用户
-            if(userServerService.list(userServerLambdaQueryWrapper).size()==0) {
+            if(userServerService.count(userServerLambdaQueryWrapper)==0) {
                 LambdaUpdateWrapper<Server> server = new LambdaUpdateWrapper<>();
                 server.set(Server::getRegisterEnable, 0).eq(Server::getId, id);
                 serverService.update(server);
@@ -122,7 +123,7 @@ public class ServerController {
     public JsonResult updateServer(@RequestParam("id")int id){
         try {
             LambdaUpdateWrapper<Server> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.set(Server::getRegisterEnable,7);
+            updateWrapper.set(Server::getRegisterEnable,7).ne(Server::getRegisterEnable,0);
             serverService.update(updateWrapper);
             LambdaUpdateWrapper<Server> wrapper = new LambdaUpdateWrapper<>();
             wrapper.set(Server::getRegisterEnable,3).eq(Server::getId,id);
@@ -160,6 +161,36 @@ public class ServerController {
         }catch (Exception e){
             e.printStackTrace();
             return  ResultFactory.FailResult("上传出错!");
+        }
+    }
+
+    @GetMapping("severusers")
+    public JsonResult users(@RequestParam("query")String query){
+        try {
+            return  ResultFactory.SuccessResult(serverService.getSeverUsers(query));
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ResultFactory.FailResult("获取出错!");
+        }
+    }
+
+    @GetMapping("selection")
+    public JsonResult selection(@RequestParam("serverId")Integer serverId){
+        try {
+            return  ResultFactory.SuccessResult(serverService.getServerSelection(serverId));
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ResultFactory.FailResult("获取出错!");
+        }
+    }
+
+    @PostMapping("toNewServer")
+    public JsonResult toNewServer(@RequestParam("users") String users,@RequestParam("serverIdOld") Integer serverIdOld,@RequestParam("serverIdNew") Integer serverIdNew){
+        try {
+            return  ResultFactory.SuccessResult(serverService.toNewServer(users,serverIdOld,serverIdNew));
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ResultFactory.FailResult("转移出错!");
         }
     }
 

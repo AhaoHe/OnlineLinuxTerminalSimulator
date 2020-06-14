@@ -1,5 +1,7 @@
 package hmh.terminal.linux.service.serviceImpl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -297,6 +299,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new UsernameNotFoundException("验证信息不是最新的或在其他地方登录！请重新登录！");
         }
         return true;
+    }
+
+    @Override
+    public IPage<List<Map<String, Object>>> getUserServerByUserName(String query) {
+        Map<String,Object> map = JSONObject.toJavaObject(JSON.parseObject(query),Map.class);
+        IPage<Map<String,Object>> page=new Page<>((Integer)map.get("current"),(Integer)map.get("size"));
+        return this.baseMapper.getUserServerByUsername(page,(Integer)map.get("groupId"),(Integer)map.get("level"),(String) map.get("search"));
     }
 
 }

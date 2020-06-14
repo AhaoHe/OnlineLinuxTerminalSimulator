@@ -178,6 +178,58 @@ public class LoginStatusImpl extends ServiceImpl<LoginStatusMapper,LoginStatus> 
     }
 
     @Override
+    public Map<String, List> getCommandChartData(String startTime, int days) {
+        try{
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            List<String> date = new LinkedList<>();
+            String endDate=startTime;
+            if(startTime==null){
+                throw  new Exception("获取失败");
+            }
+            for (int i=0;i<days;i++){
+                date.add(endDate);
+                Date dd = df.parse(endDate);
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(dd);
+                calendar.add(Calendar.DAY_OF_MONTH, 1);//加一天
+                System.out.println("增加一天之后：" + df.format(calendar.getTime()));
+                endDate = df.format(calendar.getTime());
+            }
+            List<Map<String, String>> userdata = this.baseMapper.getChartDataOfCommand(startTime,endDate);
+            Map<String,List> map = new HashMap<>();
+            List<Integer> countList = new LinkedList<>();
+            List<Integer> dangercountList = new LinkedList<>();
+            for (String d:date){
+                String count="0";
+                String dangercount="0";
+                for (Map<String, String> data : userdata) {
+                    if(d.equals(data.get("dat"))){
+                        count= data.get("count");
+                        dangercount = data.get("dangercount");
+                    }
+                }
+                countList.add(Integer.parseInt(count) );
+                dangercountList.add(Integer.parseInt(dangercount) );
+            }
+            map.put("firstData",countList);
+            map.put("secondData",dangercountList);
+            map.put("dateData",date);
+            map.put("xData",new LinkedList(){{add("代码总量");add("危险代码总数");}});
+            return map;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public Map<String, Integer> getCount() {
+        Map<String,Integer> map=this.baseMapper.getDataCount();
+        map.put("onlinecount",WebSocketServer.onlineCount);
+        return map;
+    }
+
+    @Override
     public List<String> getDFH(String username) {
         SSHLinux sshLinux = new SSHLinux(userServerMapper.getUserServerByUserName(username,null));
         String encodeSet = "export LC_CTYPE=zh_CN.GB18030;";

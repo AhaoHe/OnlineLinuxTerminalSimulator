@@ -83,7 +83,7 @@
                 <template slot-scope="scope">
                     <el-button :disabled="scope.row.disabled" type="info" size="mini" @click="dialogVisible=true;checked=scope.row.username">统计查看</el-button>
                     <el-popconfirm style="margin-left:10px"
-                        v-if="type=='online'" :disabled="scope.row.disabled"
+                        v-if="type=='online'&&query.level>scope.row.power" :disabled="scope.row.disabled"
                         placement="top"
                         :title="`确定封禁${scope.row.username}的Linux账户吗？`"
                         @onConfirm="ban(scope.row.username)"
@@ -91,7 +91,7 @@
                         <el-button slot="reference" type="danger" size="mini">封禁</el-button>
                     </el-popconfirm>
                     <el-popconfirm style="margin-left:10px"
-                        v-if="type=='online'&&scope.row.online==true" :disabled="scope.row.disabled"
+                        v-if="type=='online'&&scope.row.online==true&&query.level>scope.row.power" :disabled="scope.row.disabled"
                         placement="top"
                         :title="`确定下线${scope.row.username}吗？`"
                         @onConfirm="line(scope.row.username)"

@@ -25,7 +25,7 @@
         ) AS online,
         (CASE WHEN E.`level` &lt; #{map.level} THEN FALSE
         ELSE TRUE END
-        ) AS disabeled
+        ) AS disabeled,E.level AS power
         FROM user_server us
         LEFT JOIN sys_group g ON g.id = us.group_id
         LEFT JOIN (SELECT uid,username FROM user )U ON U.uid = us.uid
@@ -37,7 +37,7 @@
         WHERE level!=10
         AND us.`status`=#{status}
         <if test="map.level!=10">
-          AND g.id = #{map.groupId}
+          AND g.id = #{map.groupId} AND g.status!=0
         </if>
         <if test="map.search!='' and map.search!=null ">
             AND U.username Like concat(#{map.search},'%')
@@ -59,7 +59,7 @@
            AND loginstatus=0
         </if>
         <if test="status == 1">
-            AND loginstatus=1 AND loginstatus=2
+            AND (loginstatus=1 OR loginstatus=2)
         </if>
         GROUP BY date_format(login_time, '%Y-%m-%d'),username) A
         GROUP BY dat
@@ -75,6 +75,27 @@
         WHERE username = #{username}
         and A.time BETWEEN #{startTime} AND #{endTime}
         GROUP BY dat;
+    </select>
+
+    <select id="getChartDataOfCommand" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(A.time,'%Y-%m-%d') dat,CAST(count(A.id) AS char ) count,
+        CAST(count(
+        CASE A.danger WHEN 1 then 1
+        ELSE NULL END
+        ) AS char )dangercount
+        FROM user_command A
+        WHERE time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY dat;
+    </select>
+
+    <select id="getDataCount" resultType="java.util.HashMap">
+        SELECT A.count linuxcount,B.count systemcount,C.count commandcount
+        FROM
+        (SELECT  count(DISTINCT username) AS count FROM loginstatus
+        WHERE loginstatus =1 OR loginstatus=2)A,
+        (SELECT  count(DISTINCT username) AS count FROM loginstatus
+        WHERE loginstatus=0)B,
+        (SELECT count(1) AS count FROM user_command)C;
     </select>
 
 </mapper>

@@ -13,6 +13,7 @@
             <el-tag style="margin-left:10px;" v-if="o.registerEnable==3?true:false" type="success" size="mini">默认注册</el-tag>
             <div class="bottom clearfix">
               <span style="margin-right:10px;">IP:</span><span v-text="o.hostname+':'+o.port" style="font-size: 14px;color: #999;"></span>
+              <el-button type="info" size="mini" class="button" style="float:right" @click="getUsers(o.id)">查看用户</el-button>
             </div>
             <div class="bottom clearfix">
               <span style="margin-right:10px;">磁盘分配:</span><span v-text="o.disk" style="font-size: 14px;color: #999;"></span>
@@ -135,13 +136,27 @@
         <el-button :loading="loading" type="primary" @click="addData('addForm')">添 加</el-button>
       </div>
     </el-dialog>
+    <!-- 用户 -->
+    <el-dialog :title="'用户-'+serverId+'号服务器'" :visible.sync="usersdialog" width="400px">
+      <template slot="title">
+          <span style="margin-right:10px">用户-{{ serverId }}号服务器</span>
+          <el-tooltip class="item" effect="dark" content="红色为系统封禁用户，绿色为正常用户" placement="top">
+            <i class="el-icon-warning-outline"></i>
+          </el-tooltip>
+        </template>
+        <server-users :s-id="serverId"></server-users>
+    </el-dialog>
 </div>
 </template>
 <script>
   import { getServerInfo , addServerInfo , updateServerInfo , deleteServerInfo , setRegister } from '@/api/server'
   import { Message } from 'element-ui';
   import { getToken } from '@/utils/auth'
+  import ServerUsers from './components/users'
 export default {
+  components:{
+    ServerUsers
+  },
   mounted(){
     this.getDataInfo();
   },
@@ -166,6 +181,8 @@ export default {
       fileList:[],
       visable:false,
       addenable:false,
+      usersdialog:false,
+      serverId:0,
       server: {},
       loading:false,
       rules:{
@@ -187,6 +204,10 @@ export default {
     };
   },
   methods:{
+    getUsers(id){
+      this.serverId=id;
+      this.usersdialog=true;
+    },
     Token(){
       let token =getToken();
       return {Authorization:token}

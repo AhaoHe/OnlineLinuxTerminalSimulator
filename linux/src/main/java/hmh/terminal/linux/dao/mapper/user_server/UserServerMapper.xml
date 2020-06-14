@@ -60,7 +60,7 @@
     </select>
 
     <select id="disk" resultType="DiskDTO">
-        select uid,username,serverId,gname,
+        select uid,username,serverId,gname,server_status,
         (case when disk is null then '未分配'
         else disk end ) as disk
         from userall
@@ -69,8 +69,33 @@
             and username LIKE concat(#{search},'%')
         </if>
         <if test="level !=10">
-            and group_id = #{groupId}
+            and group_id = #{groupId} and gstatus!=0
         </if>
     </select>
+
+
+
+    <select id="getGroupIdByUsername" resultType="java.util.Map">
+        SELECT  group_id,serverId
+        from  userall
+        WHERE username = #{username};
+    </select>
+    <select id="getBanCommand" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM
+        (SELECT command FROM command WHERE `status`=0
+        UNION
+        SELECT command FROM group_command A
+        LEFT JOIN command B ON A.command_id=B.id
+        WHERE group_id = #{groupId})A
+        WHERE #{command} REGEXP CONCAT('^',command,' .*') OR command = #{command};
+    </select>
+
+    <insert id="saveLoginStatus" parameterType="LoginStatus">
+        insert into loginstatus(username,loginstatus,token,ipaddress)VALUES (#{login.username},#{login.loginstatus},#{login.token},#{login.ipAddress})
+    </insert>
+    <insert id="saveCommand" >
+        insert into user_command(username,serverId,user_command,danger)VALUES (#{username},#{serverId},#{command},#{danger})
+    </insert>
 
 </mapper>

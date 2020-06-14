@@ -56,7 +56,7 @@ export const constantRoutes = [
         meta: {
             requireAuth: false
         }
-    },
+    }/* ,
     {
         //权限测试
         path: '/test',
@@ -75,7 +75,7 @@ export const constantRoutes = [
                 },
             }
         ]
-    },
+    } *//* ,
     {
         //权限测试
         path: '/ws',
@@ -93,7 +93,7 @@ export const constantRoutes = [
                 },
             }
         ]
-    },
+    } */,
     {
       path: '/404',
       component: () => import('@/views/NotFound'),

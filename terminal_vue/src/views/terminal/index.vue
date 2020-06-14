@@ -4,29 +4,38 @@
         <el-main>
             <div id="xterm"  />
         </el-main>
-        <el-aside style="width:30%;text-align:center;background-color: white">
-            <el-card style="width:100%;">
-            <p v-text="command" style="font-size:20px;"/>
-            <el-table
-            :data="desc"
-            style="width: 100%;margin-buttom=20px;"
-            >
-            <el-table-column
-                prop="command"
-                label="命令"
-                width="80">
-            </el-table-column>
-            <el-table-column
-                prop="description"
-                label="介绍"
-                width="180">
-            </el-table-column>
-            </el-table>
-            <br>
-            <!-- <p id="help" style="width:100%;height:70%;border:1px solid #000;" v-text="desc"/> -->
-            <el-button type="danger" round >我要纠错</el-button>
-            </el-card>
-        </el-aside>
+        <el-main style="width:30%;text-align:center;background-color: white">
+            <el-tabs type="border-card">
+                <el-tab-pane label="参考相关命令">
+                    <!-- <el-card style="width:100%;"> -->
+                    <!-- <p v-text="command" style="font-size:20px;"/> -->
+                    <el-table
+                    :data="desc"
+                    style="width: 100%;margin-buttom=20px;"
+                    >
+                    <el-table-column
+                        prop="command"
+                        label="命令"
+                        fixed="left"
+                        width="80%">
+                    </el-table-column>
+                    <el-table-column
+                        prop="description"
+                        label="介绍"
+                        width="200%">
+                    </el-table-column>
+                    </el-table>
+                    <br>
+                    <!-- <p id="help" style="width:100%;height:70%;border:1px solid #000;" v-text="desc"/> -->
+                    <el-button type="danger" round >我要纠错</el-button>
+                    <!-- </el-card> -->
+                </el-tab-pane>
+                <el-tab-pane label="组成员列表">
+                    <group-users></group-users>
+                </el-tab-pane>
+            </el-tabs>
+            
+        </el-main>
     </el-container>
     
 </div>
@@ -40,6 +49,7 @@ import store from '@/store'
 import { getToken } from '@/utils/auth'
 import { getCommandDesc } from '@/api/terminal'
 import { getInfo } from '@/api/user'
+import GroupUsers from './components/groupusers'
 
 export default {
   name: 'Xterm',
@@ -49,6 +59,7 @@ export default {
       default: ''
     },
   },
+  components:{GroupUsers},
   data(){
       return {
         message: "",
@@ -60,7 +71,7 @@ export default {
         path:"ws://localhost:8080/linuxterminal/10000/"+getToken(),
         socket:"",
         term: "",
-        command:"欢迎参考",
+        //command:"欢迎参考",
         desc:[]
       }
   },

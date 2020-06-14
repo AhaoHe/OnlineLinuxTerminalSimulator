@@ -1,6 +1,7 @@
 package hmh.terminal.linux.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import hmh.terminal.linux.dao.entity.LoginStatus;
 import hmh.terminal.linux.service.SSHService;
 import hmh.terminal.linux.utils.JwtTokenUtil;
 import hmh.terminal.linux.utils.SSHLinux;
@@ -81,7 +82,8 @@ public class WebSocketServer {
             log.info("用户" + username + "连接:,当前在线人数为:" + getOnlineCount());
 
             try {
-                if (jwtTokenUtil.isTokenExpired(token)|| !sshService.checkToken(username,WebsocketUtil.getRemoteAddress(session).getHostName(),token)) {
+                String IPAddress=WebsocketUtil.getRemoteAddress(session).getHostName();
+                if (jwtTokenUtil.isTokenExpired(token)|| !sshService.checkToken(username,IPAddress,token)) {
                     sendMessage("认证失败!请重新登录!");
                     onClose();
                 }else {
@@ -90,7 +92,8 @@ public class WebSocketServer {
                     Map<String, Object> us = sshService.getUserAndServer(username, sid);
                     if (us == null) {
                         try {
-                            sendMessage("连接失败，缺少相关参数！");
+                            sendMessage("连接失败，缺少相关参数！原因：可能被封禁");
+                            onClose();
                         } catch (IOException e) {
                             log.debug("连接失败，缺少相关参数！查找不到sever数据");
                         }
@@ -113,6 +116,12 @@ public class WebSocketServer {
                             this.sshLinux.execCommand(this);
                             if ("success".equals(this.sshLinux.state)) {
                                 sendMessage("连接成功");
+                                LoginStatus loginStatus= new LoginStatus();
+                                loginStatus.setIpAddress(IPAddress);
+                                loginStatus.setToken(token);
+                                loginStatus.setUsername(username);
+                                loginStatus.setLoginstatus(1);
+                                sshService.saveLoginStatus(loginStatus);
                             } else {
                                 sendMessage("连接超时，连接失败");
                             }
@@ -174,10 +183,16 @@ public class WebSocketServer {
                         this.sshLinux.pw.write( "\r");
                         this.sshLinux.pw.flush();
                     }else {
-                        //通过工具类的标准输入网远程服务器中写内容
-                        this.sshLinux.pw.write(message/*+ "\r\n"*/);
-                        this.sshLinux.pw.flush();
-                        //this.sshLinux.pw.println(message);
+                        if(sshService.checkCommand(message.replaceAll("\r|\n"," "),username)){
+                            //通过工具类的标准输入网远程服务器中写内容
+                            this.sshLinux.pw.write(message/*+ "\r\n"*/);
+                            this.sshLinux.pw.flush();
+                            //this.sshLinux.pw.println(message);
+                        }else {
+                            sendMessage("该命令禁止输入，多次违规可能被封禁！");
+                            this.sshLinux.pw.write("\r");
+                            this.sshLinux.pw.flush();
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

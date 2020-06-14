@@ -12,7 +12,6 @@
                 @node-click="clickNode"
                 draggable
                 node-key="id"
-                default-expand-all
                 :expand-on-click-node="false"
                 :allow-drop="allowdrop">
                 <div class="custom-tree-node" slot-scope="{ node, data }">

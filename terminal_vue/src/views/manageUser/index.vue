@@ -403,7 +403,7 @@
           order:'',
           total: 0,
           current:1,
-          pageSize:5,
+          pageSize:6,
           selectTime:'',
           ban:0,
         },

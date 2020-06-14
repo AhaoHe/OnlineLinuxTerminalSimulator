@@ -19,6 +19,7 @@ public class UserOnlineDTO {
     private Integer groupId;
     private Integer serverId;
     private Integer level;
+    private Integer power;
     private boolean online;
     private boolean disabled;
 }

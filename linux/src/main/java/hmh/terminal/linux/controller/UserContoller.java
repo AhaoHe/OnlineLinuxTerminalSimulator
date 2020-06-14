@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import hmh.terminal.linux.config.auth.JSONAuthentication;
 import hmh.terminal.linux.dao.entity.*;
 import hmh.terminal.linux.dto.MenuDTO;
@@ -94,6 +96,18 @@ public class UserContoller extends JSONAuthentication {
                             @RequestParam("size") int size) {
         try {
             return ResultFactory.SuccessResult(userService.findUserLikeUsername(username, current, size));
+        }catch (Exception e){
+            return  ResultFactory.FailResult(e.getMessage());
+        }
+    }
+
+    /*
+    * 查询组内成员服务器信息
+  * */
+    @GetMapping("groupusers")
+    public JsonResult server(@RequestParam("query") String query) {
+        try {
+            return ResultFactory.SuccessResult(userService.getUserServerByUserName(query));
         }catch (Exception e){
             return  ResultFactory.FailResult(e.getMessage());
         }
