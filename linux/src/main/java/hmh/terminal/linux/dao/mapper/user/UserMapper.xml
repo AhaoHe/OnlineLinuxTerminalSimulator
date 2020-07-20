@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.user.UserMapper">
+    <select id="findAllUser" resultType="ManageUserDTO">
+        SELECT uid,username,mail,tel,nickname,
+        DATE_FORMAT(last_time,'%Y-%m-%d %H:%i:%s') as last_time,
+        DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') as create_time,
+        state,`level`,
+        (CASE sex
+            WHEN 0 THEN
+                '女'
+            WHEN 1 THEN
+                '男'
+            ELSE
+                '保密'
+        END) AS sex,
+        role_id,
+        role_name,
+        serverId,
+        `server`,server_username,gname,group_id
+        from userall
+        WHERE state!=7
+    </select>
+
+    <select id="findUserBy" resultType="ManageUserDTO" parameterType="UserInfoVo">
+        SELECT uid,username,mail,tel,nickname,
+        DATE_FORMAT(last_time,'%Y-%m-%d %H:%i:%s') as last_time,
+        DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') as create_time,
+        state,`level`,
+        (CASE sex
+            WHEN 0 THEN
+                '女'
+            WHEN 1 THEN
+                '男'
+            ELSE
+                '保密'
+        END) AS sex,
+        role_id,
+        role_name,
+        serverId,
+        `server`,server_username,gname,group_id
+        from userall
+        WHERE state!=7
+        <if test="userInfo.search != null and userInfo.search!= '' ">
+            and username LIKE concat(#{userInfo.search},'%')
+        </if>
+        <if test="userInfo.roleId != null and userInfo.roleId!= '' ">
+            and role_id in (${userInfo.roleId})
+        </if>
+        <if test="userInfo.ban == 1">
+            and state = 3
+        </if>
+        <if test="userInfo.ban == -1">
+            and state = 0
+        </if>
+        <if test="userInfo.roleId != null and userInfo.roleId!= '' ">
+            and role_id in (${userInfo.roleId})
+        </if>
+        <!--<if test="userInfo.dateTime > 0">
+            and last_time &gt;  DATE_SUB(now(),INTERVAL #{userInfo.dateTime} MINUTE)
+        </if>-->
+        <if test="userInfo.dateTime == '-1' ">
+            and last_time is null
+        </if>
+        <if test="userInfo.selectTime != '' and userInfo.selectTime != null ">
+            and last_time ${userInfo.selectTime} last_time
+        </if>
+        <if test="userInfo.order != null and userInfo.order != '' ">
+            ORDER BY last_time ${userInfo.order}
+        </if>
+    </select>
+
+    <select id="findUserLikeUsername" resultType="ManageUserDTO">
+        SELECT username,mail,tel,nickname,
+        DATE_FORMAT(last_time,'%Y-%m-%d %H:%i:%s') as last_time,
+        DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') as create_time,
+        state,`level`,
+        (CASE sex
+            WHEN 0 THEN
+                '女'
+            WHEN 1 THEN
+                '男'
+            ELSE
+                '保密'
+        END) AS sex,
+        role_id,
+        role_name,
+        serverId,
+        `server`,server_username,gname,group_id
+        from userall
+        WHERE state!=7
+        and username LIKE concat(#{username},'%')
+    </select>
+
+    <select id="getUserServerByUsername" resultType="java.util.Map">
+        select username,role_name,server_username
+        from userall
+        where 1=1
+        <if test="level!=10">
+            and group_id = #{groupId} and gstatus!=0
+        </if>
+        AND level!=10
+        <if test="search!='' and search!=null">
+            and username LIKE concat(#{search},'%')
+        </if>
+    </select>
+</mapper>

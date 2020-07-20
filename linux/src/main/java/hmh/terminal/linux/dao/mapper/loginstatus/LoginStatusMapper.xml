@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.loginstatus.LoginStatusMapper">
+
+    <select id="getListOnline" resultType="UserOnlineDTO">
+        SELECT U.username,
+        (CASE WHEN A.count is NULL THEN 0
+        ELSE A.count END) count,
+        (CASE WHEN B.dangercount is NULL THEN 0
+        ELSE B.dangercount END) dangercount,
+        (CASE WHEN C.count is NULL THEN 0
+        ELSE C.count END) countNow,
+        (CASE WHEN D.dangercount is NULL THEN 0
+        ELSE D.dangercount END) dangercountNow,
+        g.`name` AS gname,g.group_name,g.id as groupId,us.serverId,
+        (CASE WHEN (((B.dangercount/A.count*100>=50 AND A.count>=4)OR (A.count=3 AND B.dangercount/A.count*100>34))OR((D.dangercount/C.count*100>=50 AND C.count>=4)OR (C.count=3 AND D.dangercount/C.count*100>34))) THEN 3
+        WHEN (((B.dangercount/A.count*100>25 AND B.dangercount/A.count*100&lt;50 AND A.count>=4)OR (A.count&lt;4 AND B.dangercount/A.count*100>34 AND B.dangercount/A.count*100&lt;50 )))OR(((D.dangercount/C.count*100>25 AND D.dangercount/C.count*100&lt;50 AND C.count>=4)OR (C.count&lt;4 AND D.dangercount/C.count*100>34 AND D.dangercount/C.count*100&lt;50 ))) THEN 2
+        ELSE 1 END
+        ) level,
+        (CASE WHEN FIND_IN_SET(username,#{users})!=0 THEN TRUE
+        ELSE FALSE END
+        ) AS online,
+        (CASE WHEN E.`level` &lt; #{map.level} THEN FALSE
+        ELSE TRUE END
+        ) AS disabeled,E.level AS power
+        FROM user_server us
+        LEFT JOIN sys_group g ON g.id = us.group_id
+        LEFT JOIN (SELECT uid,username FROM user )U ON U.uid = us.uid
+        LEFT JOIN  (SELECT count(1) count,u.uid FROM user_command uc,`user` u WHERE u.username=uc.username GROUP BY u.uid) A ON us.uid = A.uid
+        LEFT JOIN  (SELECT count(1) dangercount,u.uid FROM user_command uc,`user` u WHERE u.username=uc.username AND uc.danger=1 GROUP BY u.uid) B ON us.uid = B.uid
+        LEFT JOIN  (SELECT count(1) count,u.uid FROM user_command uc,`user` u WHERE u.username=uc.username AND DATE_FORMAT(uc.time,'%Y-%m-%d')=DATE_FORMAT(now(),'%Y-%m-%d') GROUP BY u.uid) C ON us.uid = C.uid
+        LEFT JOIN  (SELECT count(1) dangercount,u.uid FROM user_command uc,`user` u WHERE u.username=uc.username AND DATE_FORMAT(uc.time,'%Y-%m-%d')=DATE_FORMAT(now(),'%Y-%m-%d') AND uc.danger=1 GROUP BY u.uid) D ON us.uid = D.uid
+        LEFT JOIN (SELECT uid,`level` FROM userall WHERE state!=7)E ON us.uid = E.uid
+        WHERE level!=10
+        AND us.`status`=#{status}
+        <if test="map.level!=10">
+          AND g.id = #{map.groupId} AND g.status!=0
+        </if>
+        <if test="map.search!='' and map.search!=null ">
+            AND U.username Like concat(#{map.search},'%')
+        </if>
+        <if test="map.levelquery!='' and map.levelquery!=null ">
+            HAVING level = #{map.levelquery}
+        </if>
+    </select>
+
+    <select id="getUserChartData">
+
+    </select>
+
+    <select id="getChartData" resultType="java.util.HashMap">
+        SELECT CAST(count(1) AS char ) count,dat
+        FROM (SELECT username,date_format(login_time, '%Y-%m-%d') dat FROM loginstatus WHERE
+        login_time BETWEEN #{startTime} AND #{endTime}
+        <if test="status == 0">
+           AND loginstatus=0
+        </if>
+        <if test="status == 1">
+            AND (loginstatus=1 OR loginstatus=2)
+        </if>
+        GROUP BY date_format(login_time, '%Y-%m-%d'),username) A
+        GROUP BY dat
+    </select>
+
+    <select id="getUserData" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(A.time,'%Y-%m-%d') dat,CAST(count(A.id) AS char ) count,
+        CAST(count(
+        CASE A.danger WHEN 1 then 1
+        ELSE NULL END
+        ) AS char )dangercount
+        FROM user_command A
+        WHERE username = #{username}
+        and A.time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY dat;
+    </select>
+
+    <select id="getChartDataOfCommand" resultType="java.util.HashMap">
+        SELECT DATE_FORMAT(A.time,'%Y-%m-%d') dat,CAST(count(A.id) AS char ) count,
+        CAST(count(
+        CASE A.danger WHEN 1 then 1
+        ELSE NULL END
+        ) AS char )dangercount
+        FROM user_command A
+        WHERE time BETWEEN #{startTime} AND #{endTime}
+        GROUP BY dat;
+    </select>
+
+    <select id="getDataCount" resultType="java.util.HashMap">
+        SELECT A.count linuxcount,B.count systemcount,C.count commandcount
+        FROM
+        (SELECT  count(DISTINCT username) AS count FROM loginstatus
+        WHERE loginstatus =1 OR loginstatus=2)A,
+        (SELECT  count(DISTINCT username) AS count FROM loginstatus
+        WHERE loginstatus=0)B,
+        (SELECT count(1) AS count FROM user_command)C;
+    </select>
+
+</mapper>

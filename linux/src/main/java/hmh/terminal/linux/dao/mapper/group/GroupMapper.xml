@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.group.GroupMapper">
+
+    <select id="getGroupName" resultType="java.util.Map">
+        select group_name,gid from groupserver
+        where register_enable = 3 and group_status = 0
+    </select>
+
+    <select id="getGroupIdDefault" resultType="java.lang.Integer">
+        select A.id
+        from sys_group A
+        where serverId=(SELECT serverId FROM sys_group WHERE id =  #{groupId}) AND `status`=0;
+    </select>
+
+    <select id="getUserUnchecked" resultType="java.util.Map">
+        SELECT
+        uid,username,role_name,level,server_username,gname,group_name,server_status
+        FROM
+        userall
+        WHERE state=3 and level!=10 AND group_id != #{groupVo.groupId} AND serverId=#{groupVo.serverId}
+        <if test="groupVo.level!=10">
+            AND level &lt; 8
+        </if>
+        <if test="groupVo.search!='' and groupVo.search!=null">
+            and username LIKE CONCAT(#{groupVo.search},'%')
+        </if>
+    </select>
+
+    <select id="getApplyUnchecked" resultType="java.util.Map">
+        SELECT
+        uid,A.username,role_name,level,server_username,gname,group_name,server_status
+        FROM
+        userall A
+        RIGHT JOIN (SELECT DISTINCT username FROM apply_group WHERE `status`=3 AND groupID=#{groupId})B ON B.username=A.username
+        <if test="search!='' and search!=null">
+            and username LIKE CONCAT(#{search},'%')
+        </if>
+    </select>
+
+    <!--<select id="getUserCheckedOld" resultType="java.util.Map">-->
+        <!--SELECT-->
+        <!--uid,username,role_name,level,server_username,gname,group_name-->
+        <!--FROM-->
+        <!--userall-->
+        <!--WHERE state=3 and level!=10 AND group_id = #{groupVo.groupId} AND serverId=#{groupVo.serverId}-->
+        <!--<if test="groupVo.level!=10">-->
+            <!--AND level &lt; 8-->
+        <!--</if>-->
+        <!--<if test="groupVo.search!='' and groupVo.search!=null">-->
+            <!--and username LIKE CONCAT(#{groupVo.search},'%')-->
+        <!--</if>-->
+    <!--</select>-->
+    <select id="getUserChecked" resultType="java.util.Map">
+        SELECT
+        uid,username,role_name,level,server_username,gname,group_name,server_status
+        FROM
+        userall
+        WHERE state=3 and level!=10 AND group_id = #{groupVo.groupId} AND serverId=#{groupVo.serverId}
+        <if test="groupVo.search!='' and groupVo.search!=null">
+            and username LIKE CONCAT(#{groupVo.search},'%')
+        </if>
+    </select>
+
+    <select id="getGroupUser" resultType="String">
+        SELECT
+        server_username as sname
+        FROM
+        userall
+        WHERE state!= 7 AND group_id = #{groupId}
+    </select>
+
+    <select id="getGroupNoAmdinUser" resultType="String">
+        SELECT
+        server_username as sname
+        FROM
+        userall
+        WHERE state!= 7 AND 8>level AND group_id = #{groupId}
+    </select>
+
+    <select id="getGroupDefault" resultType="java.util.Map">
+        select '组管理' AS username,hostname,port,'root' AS server_username,
+        (case status
+        when 0 then rootPassword
+        when 1 then sqlkey
+        else filekey
+        end) as loginKey,
+        group_name,group_status,
+        CAST(status AS char) AS status
+        FROM
+        groupserver
+        WHERE gid = #{groupId}
+    </select>
+    <select id="getGroupServer" resultType="java.util.Map">
+        select '组管理' AS username,hostname,port,'root' AS server_username,
+        (case status
+        when 0 then rootPassword
+        when 1 then sqlkey
+        else filekey
+        end) as loginKey,
+        CAST(status AS char) AS status
+        FROM
+        server
+        WHERE id = #{serverId}
+    </select>
+
+
+    <select id="applyGroupList" resultType="java.util.Map">
+        SELECT DISTINCT A.*,
+        (CASE WHEN B.groupID is not NULL then TRUE
+        ELSE FALSE END
+        ) AS apply_status
+        FROM sys_group A
+        LEFT JOIN(SELECT groupID FROM apply_group WHERE username=#{username} AND status =3)B ON B.groupID = A.id
+        WHERE `status`=3 AND id!=#{groupId}
+    </select>
+    <select id="isOneApply" resultType="java.lang.Integer">
+        SELECT count(1) FROM apply_group WHERE username=#{username} AND groupID=#{groupId}
+    </select>
+    <insert id="applyGroup">
+        insert into apply_group(username,groupID,status) values (#{username},#{groupId},3);
+    </insert>
+    <delete id="delApply">
+        delete from apply_group where FIND_IN_SET(username,#{username})!=0 AND groupID=#{groupId} AND status=3;
+    </delete>
+</mapper>

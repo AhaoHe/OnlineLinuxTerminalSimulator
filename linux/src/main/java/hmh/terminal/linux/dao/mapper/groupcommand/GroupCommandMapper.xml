@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.groupcommand.GroupCommandMapper">
+
+    <delete id="delUnchecked">
+        delete from group_command
+        where group_id=#{groupId} and  FIND_IN_SET(command_id,#{ids})!=0
+    </delete>
+
+</mapper>

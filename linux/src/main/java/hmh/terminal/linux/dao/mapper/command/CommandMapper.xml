@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hmh.terminal.linux.dao.mapper.command.CommandMapper">
+
+    <select id="getCommandInfo" resultType="Command">
+        SELECT
+        *
+        FROM
+        command
+        WHERE status!=7
+        <if test="search!='' and search!=null">
+            and command LIKE CONCAT(#{search},'%')
+        </if>
+    </select>
+
+    <update id="changeStatus">
+        UPDATE command SET `status` = #{status}
+        WHERE FIND_IN_SET(id,#{ids})!=0
+    </update>
+
+    <select id="getCommandIdByGroup" resultType="java.lang.Integer">
+        select command_id
+        from group_command
+        where  group_id=#{groupId}
+    </select>
+
+</mapper>
